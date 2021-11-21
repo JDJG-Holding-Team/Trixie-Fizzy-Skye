@@ -1,7 +1,7 @@
 import discord, os , asyncio,traceback
 import ClientConfig, B
 
-bot=ClientConfig.bot
+bot = ClientConfig.bot
 
 async def status_task():
   await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name="Orders for Soda"))
