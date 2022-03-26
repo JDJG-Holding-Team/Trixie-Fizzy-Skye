@@ -1,33 +1,76 @@
-import discord, os , asyncio,traceback
-import ClientConfig, B
+import discord
+import os
+import re
+import asyncio
+import traceback
+from discord.ext import commands
+import dotenv
 
-bot = ClientConfig.bot
 
-async def status_task():
-  await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name="Orders for Soda"))
-  await asyncio.sleep(40)
-  await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.listening, name="Bot PFP made by Dutchy#6127(thank you) :D"))
-  await asyncio.sleep(40)
+async def get_prefix(client, message):
+    extras = ["Soda*", "So*", "sb!", "sb*"]
+    comp = re.compile("^(" + "|".join(map(re.escape, extras)) + ").*", flags=re.I)
+    match = comp.match(message.content)
+    if match is not None:
+        extras.append(match.group(1))
+    return commands.when_mentioned_or(*extras)(client, message)
 
-async def startup():
-  await bot.wait_until_ready()
-  await status_task()
+
+async def status_task(self):
+    await self.change_presence(
+        status=discord.Status.online,
+        activity=discord.Activity(type=discord.ActivityType.listening, name="Orders for Soda"),
+    )
+    await asyncio.sleep(40)
+    await self.change_presence(
+        status=discord.Status.online,
+        activity=discord.Activity(
+            type=discord.ActivityType.listening, name="Bot PFP made by Dutchy#6127(thank you) :D"
+        ),
+    )
+    await asyncio.sleep(40)
+
+
+async def startup(self):
+    await self.wait_until_ready()
+    await status_task(self)
+
+
+class SodaBot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    async def setup_hook(self):
+        await bot.load_extension("jishaku")
+
+        for filename in os.listdir("./cogs"):
+            if filename.endswith(".py"):
+                try:
+                    await bot.load_extension(f"cogs.{filename[:-3]}")
+                except commands.errors.NoEntryPointError:
+                    traceback.print_exc()
+
+        self.loop.create_task(startup(self))
+
+
+bot = SodaBot(command_prefix=(get_prefix), intents=discord.Intents.all())
+
 
 @bot.event
 async def on_ready():
-  print("Bot is Ready")
-  print(f"Logged in as {bot.user}")
-  print(f"Id: {bot.user.id}")
+    print("Bot is Ready")
+    print(f"Logged in as {bot.user}")
+    print(f"Id: {bot.user.id}")
 
 
 @bot.event
-async def on_error(event,*args,**kwargs):
-  more_information=os.sys.exc_info()
-  error_wanted=traceback.format_exc()
-  traceback.print_exc()
-  
-  #print(more_information[0])
+async def on_error(event, *args, **kwargs):
+    more_information = os.sys.exc_info()
+    error_wanted = traceback.format_exc()
+    traceback.print_exc()
 
-B.b()
-bot.loop.create_task(startup())
+    # print(more_information[0])
+
+
+dotenv.load_dotenv()
 bot.run(os.environ["TOKEN"])
