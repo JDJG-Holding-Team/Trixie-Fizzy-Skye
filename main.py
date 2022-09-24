@@ -1,10 +1,12 @@
-import discord
+import asyncio
 import os
 import re
-import asyncio
+import sys
 import traceback
-from discord.ext import commands
+
+import discord
 import dotenv
+from discord.ext import commands
 
 
 async def get_prefix(client, message):
@@ -65,7 +67,7 @@ async def on_ready():
 
 @bot.event
 async def on_error(event, *args, **kwargs):
-    more_information = os.sys.exc_info()
+    more_information = sys.exc_info()
     error_wanted = traceback.format_exc()
     traceback.print_exc()
 
