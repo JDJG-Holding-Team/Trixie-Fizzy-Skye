@@ -39,7 +39,7 @@ async def startup(self):
     await status_task(self)
 
 
-class SodaBot(commands.Bot):
+class TrixieSkye(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -55,7 +55,7 @@ class SodaBot(commands.Bot):
         self.loop.create_task(startup(self))
 
 
-bot = SodaBot(command_prefix=(get_prefix), intents=discord.Intents.all())
+bot = TrixieSkye(command_prefix=(get_prefix), intents=discord.Intents.all())
 
 
 @bot.event
